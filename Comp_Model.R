@@ -1,6 +1,9 @@
 final_data <- read.csv("data1.csv")
 
-n.train <- nrow(final_data)
+train <- final_data[c(1:800),]
+test <- final_data[c(801:1000),]
+
+n.train <- nrow(train)
 
 #xgboost model
 library(xgboost)
@@ -15,9 +18,11 @@ param <- list("objective" = "reg:linear",
               "colsample_bytree" = 1
 )
 
-x = as.matrix(final_data)
-trind = c(1:n.train)
-teind = c((n.train+1):nrow(x))
+x <- sapply(final_data,as.numeric)
+x = matrix(as.numeric(x),nrow(x),ncol(x))
+y <- train[,'Dependent']
+trind = 1:length(y)
+teind = (nrow(train)+1):nrow(x)
 
-#model_xg <- xgboost(param=param,data = final_data[1:n.train,],label=final_data[1:n.train,'Dependent'],nrounds=250)
-model_xg <- xgboost(param=param,data = x[trind,],label=as.numeric(x[trind,1]),nrounds=250)
+# Train the model
+model_xg <- xgboost(param=param,data = x[trind,], label = y,nrounds=250)
